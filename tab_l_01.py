@@ -2,12 +2,53 @@ import sys
 from PyQt4 import QtGui, QtCore
 
 
+
+
+class Button(QtGui.QPushButton):
+    def __init__(self,name="", height=0, width=0, parent=None,*args):
+        super(Button, self).__init__()
+        self.setText(name)
+        if height:
+            self.setFixedHeight(height)
+        if width:
+            self.setFixedWidth(width)
+        else:
+            self.setFixedHeight(55)
+            self.setFixedWidth(55)
+
+    def mouseMoveEvent(self, e):
+        if e.buttons() != QtCore.Qt.LeftButton:
+            return
+        mimeData = QtCore.QMimeData()
+        #mimeData.setText('%d,%d' % (e.x(), e.y()))
+        mimeData.setText(self.text())
+
+        pixmap = QtGui.QPixmap.grabWidget(self)
+
+        drag = QtGui.QDrag(self)
+        drag.setMimeData(mimeData)
+        drag.setPixmap(pixmap)
+        drag.setHotSpot(e.pos())
+
+        if drag.exec_(QtCore.Qt.CopyAction | QtCore.Qt.MoveAction) == QtCore.Qt.MoveAction:
+            print 'moved'
+        else:
+            print 'copied'
+
+    def mousePressEvent(self, e):
+        QtGui.QPushButton.mousePressEvent(self, e)
+        if e.button() == QtCore.Qt.LeftButton:
+            print 'press'
+
+
+
+
 class Shelf(QtGui.QWidget):
     def __init__(self):
         super(Shelf, self).__init__()
         self.layout = FlowLayout()
         for i in range(4):
-            self.layout.addWidget(QtGui.QPushButton("button_{}".format(i)))
+            self.layout.addWidget(Button("button_{}".format(i), height = int(i*10) ,width = (i*10) ))
         self.setLayout(self.layout)
 
 
